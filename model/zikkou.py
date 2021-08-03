@@ -65,6 +65,8 @@ for j in range(time):
     #周囲のエージェントを認識
     fa = fa_dasukai(v_2d, syudan, n)
 
+    #alphaを更新しようか迷う
+
     #print(fa, type(fa))
     print("fa", fa)
 
