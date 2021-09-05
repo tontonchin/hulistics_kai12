@@ -92,7 +92,7 @@ def hulistics_1(fa, alpha0,n):
             alpha0[i] = min1
         else:
             alpha0[i] = min2
-
+        alpha0[i] = round(alpha0[i], 2)
     return alpha0
 
 
@@ -162,6 +162,7 @@ def dvdt(n, v_2d, alpha,fij):
         #dvdt[i, 0] = (v_2d[i, 0] - 1.7 * np.cos(alpha(i))) / 0.5 + fij(i, 0) + fiw(i, 0)
         dvdt[i, 1] = (v_2d[i,1]-1.7*np.sin(alpha[i]))/0.5 + fij[i,1]
     v_2d += dvdt
+    v_2d = round(v_2d, 2)
 
     return v_2d
 

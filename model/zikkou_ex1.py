@@ -10,7 +10,7 @@ import matplotlib.animation as animation
 
 #関数部の関数を全ぶmoussaif.pyからインポートしてから実行する
 
-n = 40
+n = 4
 pi = math.pi
 
 fa = np.zeros(n)
@@ -32,12 +32,12 @@ for i in range(n):
     #v_itizi = v_2d[i,:]
     if kakuritu >= 0.5:
         alpha[i] = pi/2
-        syudan[i,0] = round(random.randrange(0, 10)+random.random(),2)
-        syudan[i,1] = round(random.randrange(0, 5)+random.random(),2)
+        syudan[i,0] = round(random.randrange(2, 8)+random.random(),2)
+        syudan[i,1] = round(random.randrange(0, 1)+random.random(),2)
     else :
         alpha[i] = 3*pi/2
-        syudan[i, 0] = round(random.randrange(0, 5) + random.random(), 2)
-        syudan[i, 1] = round(random.randrange(40, 50) + random.random(), 2)
+        syudan[i, 0] = round(random.randrange(2, 8) + random.random(), 2)
+        syudan[i, 1] = round(random.randrange(8, 10) + random.random(), 2)
     #print("v_2d", v_2d[i, 0])
     #print("alpha", alpha[i])
     #print("arekore", v_1d[i] * np.cos(alpha[i]))
@@ -49,6 +49,42 @@ for i in range(n):
 
 #print(v_1d, v_2d )
 fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.grid()
+ax.set_xlim([0, 10])
+ax.set_ylim([0, 9.5])
+ax.set_xlabel("x", fontsize = 14)
+ax.set_ylabel("y", fontsize = 14)
+
+
+# y=5に水平線を引く
+#横断歩道自体はあらかじめ決まった値であるが、それはexcelで参照するような形にした方が書かくちょうせいがたかい
+"""実際ではforで変数を固定し、それぞれ回す"""
+ax.axhline(0.5,xmin=0.2, xmax=0.8, color = "black")
+ax.axhline(1,xmin=0.2, xmax=0.8,color = "black")
+
+ax.axhline(2,xmin=0.2, xmax=0.8, color = "black")
+ax.axhline(2.5,xmin=0.2, xmax=0.8,color = "black")
+
+ax.axhline(3.5,xmin=0.2, xmax=0.8, color = "black")
+ax.axhline(4,xmin=0.2, xmax=0.8,color = "black")
+
+ax.axhline(5,xmin=0.2, xmax=0.8, color = "black")
+ax.axhline(5.5,xmin=0.2, xmax=0.8,color = "black")
+
+ax.axhline(6.5,xmin=0.2, xmax=0.8, color = "black")
+ax.axhline(7,xmin=0.2, xmax=0.8,color = "black")
+
+ax.axhline(8,xmin=0.2, xmax=0.8, color = "black")
+ax.axhline(8.5,xmin=0.2, xmax=0.8,color = "black")
+
+
+
+# x=3に垂直線を引く
+ax.axvline(2, color = "navy")
+ax.axvline(8, color = "navy")
+
+
 iti = []
 
 iti_x = []
@@ -118,6 +154,6 @@ for j in range(time):
 #for i in range(time):
 
 anim = animation.ArtistAnimation(fig, iti)
-anim.save('kotu_1228_anim.gif', writer='writer', fps=4)
+anim.save('ex1_1.gif', writer='writer', fps=4)
 
 plt.show()
