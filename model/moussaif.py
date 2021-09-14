@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 
 pi = math.pi
 
-
 def fa_dasu(v_2d, syudan, n):
     # 第一のヒューリスティックに関する計算
     # 周囲のエージェントの存在を認知する
@@ -31,18 +30,109 @@ def fa_dasu(v_2d, syudan, n):
 
     return fa_syudan
 
+def fa_car(alpha0, syudan, n , cars, n_cars):
+     # cars は一つの始点(xcar, ycar)をもとにした三次元配列
+     #ところどころで参照する配列の位置が間違えている
+    pi = math.pi
+    fa_syucar = np.full(n,10,dtype=float)
+    l_abc = np.zeros((n, 4, 3))
+    fa_abc = np.zeros((n, 3))
+    for j in range(n_cars):
+        if cars[j,0,0] == cars[j, 1, 0] :
+            #一つ目の式
+            l_abc[j, 0, 0] = 1 / cars[j, 0, 0]
+            l_abc[j, 0, 2] = -1
+            #二つ目の式
+            l_abc[j , 1, 1] = 1 / cars[j , 1, 1]
+            l_abc[j , 1, 2] = -1
+            #３つめのしき
+            l_abc[j, 2, 0] = 1 / cars[j, 2, 0]
+            l_abc[j, 2, 2] = -1
+            #４つめのしき
+            l_abc[j , 3, 1] = 1 / cars[j , 3, 1]
+            l_abc[j , 3, 2] = -1
+        else:
+            #1
+            l_abc[j, 0, 0] = cars[j, 0, 1] - cars[j, 1, 1]
+            l_abc[j, 0, 1] = -cars[j, 0, 0] + cars[j, 1, 0]
+            l_abc[j, 0, 2] = -cars[j, 0, 1] * cars[j, 1, 0]
+            #2
+            l_abc[j, 1, 0] = cars[j, 1, 2] - cars[j, 2, 2]
+            l_abc[j, 1, 1] = -cars[j, 1, 1] + cars[j, 2, 1]
+            l_abc[j, 1, 2] = -cars[j, 1, 2] * cars[j, 2, 1]
+            #3
+            l_abc[j, 2, 0] = cars[j, 2, 3] - cars[j, 3, 3]
+            l_abc[j, 2, 1] = -cars[j, 2, 2] + cars[j, 3, 2]
+            l_abc[j, 2, 2] = -cars[j, 2, 3] * cars[j, 3, 2]
+            #4
+            l_abc[j, 3, 0] = cars[j, 3, 0] - cars[j, 0, 0]
+            l_abc[j, 3, 1] = -cars[j, 3, 3] + cars[j, 0, 3]
+            l_abc[j, 3, 2] = -cars[j, 3, 0] * cars[j, 0, 3]
+
+    for i in range(n):
+        #それぞれの歩行者エージェントが自動車に対してもつfa
+        #forループによってnum_carについてのループも行ったほうがいいのではないか
+        for k in range(n_cars):
+
+            fa_car_kouho = 10
+            #集団は進行方向aをもち，関数になる
+            if alpha0[i] == 0 or alpha0[i] == 2 * pi:
+                fa_abc[i, 0] = 1/syudan[i,0]
+                fa_abc[i, 2] = -1
+                if syudan[i, 1] >= cars[k, 0, 1] and syudan[i, 1] <= cars[k, 1, 1]:
+                    fa_car_kouho =  abs(syudan[i,0] - cars[k,2,0])
+            elif alpha0[i] == pi/2:
+                fa_abc[i, 1] = 1/syudan[i,1]
+                fa_abc[i, 2] = -1
+                print("要チェック",cars[k,1,0])
+                if syudan[i, 0] >= cars[k, 0, 0] and syudan[i, 0] <= cars[k, 3, 0]:
+                    fa_car_kouho = abs(syudan[i,1] - cars[k,1,1])
+
+            elif alpha0[i] == pi :
+                #下二つは間違えている可能性あり
+                fa_abc[i, 0] = 1/syudan[i,0]
+                fa_abc[i, 2] = -1
+                if syudan[i, 1] >= cars[k, 0, 1] and syudan[i, 0] <= cars[k, 1, 1]:
+                    fa_car_kouho = abs(syudan[i,0] - cars[k,2,0])
+            elif alpha0[i] == 3*(pi/2) :
+                fa_abc[i, 1] = 1/syudan[i,1]
+                fa_abc[i, 2] = -1
+                print("要チェック",cars[k,3,0])
+                if syudan[i, 0] >= cars[k, 0, 0] and syudan[i, 0] <= cars[k, 3, 0]:
+                    fa_car_kouho = abs(syudan[i,1] - cars[k,3,0])
+            else:
+                for k in range(4):
+                    #forのそれぞれの式に対してのfaを求める
+                    fa_abc[i,0] = math.tan(alpha0[i])
+                    fa_abc[i,1] = -1
+                    fa_abc[i,2] = -math.tan(alpha0[i])*syudan[i,0] + syudan[i,1]
+                    kouten_sita = (l_abc[i,k,0] * fa_abc[i,1]) - (fa_abc[i,0] * l_abc[i,k,1])
+                    kouten_x = ((l_abc[i,k,1] * fa_abc[i,2]) - (fa_abc[i,1] - l_abc[i,k,2] ) )/ kouten_sita
+                    kouten_y = ((fa_abc[i, 0] * l_abc[i,k,2]) - (l_abc[i,k,0] *fa_abc[i,2] ) )/ kouten_sita
+                    if cars[0,1,0] >= kouten_x and cars[0,2,0] <= kouten_x:
+                        #print("確認",cars[k,1,0])
+                        #print("確認",cars[k,2,0])
+                        if kouten_y <= cars[0,0,1] and kouten_y >= cars[0,1,1]:
+                            d =((kouten_x - syudan[i,0])**2 + (kouten_y - syudan[i,1])**2)**0.5
+                            print("NaNになるかもしれない",d)
+                            if d <= fa_car_kouho:
+                                fa_car_kouho = d
+            print("faの候補",fa_car_kouho)
+            fa_syucar[i] = fa_car_kouho
+        print("fa_kouhoについて",fa_syucar)
+    return fa_syucar
+
+
+
+
 def fa_dasukai(v_2d, syudan, n):
     # 第一のヒューリスティックに関する計算
     # 周囲のエージェントの存在を認知する
-    fa_syudan = np.full(n, 10)
+    fa_syudan = np.full(n, 10, dtype=float)
     syudan_ato = syudan + v_2d
     for i in range(n):
         #print("i", fa_syudan[i])
         soutai = syudan_ato - syudan_ato[i]
-        #soutaiはsyudanから自分の位置を引いたも　and
-        #print("soutai", soutai)
-
-
         for j in range(n):
             if soutai[j, 0] == 0 and soutai[j, 1] == 0:
                 continue
@@ -54,6 +144,22 @@ def fa_dasukai(v_2d, syudan, n):
                     fa_syudan[i] = kyori
 
     return fa_syudan
+
+def fa_kekka( n,fa_syudan,fa_syucar):
+    # fa_syudan, fa_carの代償比較
+    fa_hontou = np.full(n,10)
+    for i in range(n):
+        if fa_syudan[i] <= fa_syucar[i]:
+            fa_hontou[i] = fa_syudan[i]
+        else:
+            fa_hontou[i] = fa_syucar[i]
+
+        if fa_hontou[i] == 0:
+            fa_hontou[i] = 0.5
+
+    return fa_hontou
+
+
 
 
 # 関数を変更位させるnumpyの配列に対応
@@ -72,16 +178,9 @@ def hulistics_1(fa, alpha0,n):
             return (Dmax ** 2) + (fa[i] ** 2) - (2 * Dmax * fa[i] * math.cos(alpha0[i] - theta))
 
         nagasa =(fa[i]**2 - (60/220)**2)**0.5
-        #print("食べたい", nagasa)
-        #print("nagasa", type(nagasa), "nagasa", nagasa)
-
 
         kakudo_gosa = np.arctan((60/220)/nagasa)
-        #print("kakudo_gosa", kakudo_gosa)
-        #print("dtype of fa, alpha0,n", type(alpha0), type(fa), type(kakudo_gosa))
-        #print("alpha0とはいったい",alpha0[i])
-        #alpha0[i] = alpha0.astype(np.float32)
-        #min = optimize.fmin(fufu, (alpha0[i] - math.pi/2),(alpha0[i] + math.pi/2) )
+
         min1 = optimize.fminbound(fufu, alpha0[i] - math.pi/2, alpha0[i] - kakudo_gosa)
         min2 = optimize.fminbound(fufu, alpha0[i] + kakudo_gosa, alpha0[i] + math.pi/2)
 
@@ -103,8 +202,6 @@ def cal_fij(n, syudan):
     for i in range(n):
         fij_i = np.zeros(2)
         soutai = syudan - syudan[i, :]
-        #print("soutaiそうたい", soutai)
-        #print("次は", soutai[i, :])
         dij = np.zeros(n)
         for i in range(n):
             dij[i] = np.linalg.norm(soutai[i, :])
@@ -115,7 +212,6 @@ def cal_fij(n, syudan):
             fij = 5000 * 9.8 * (60 / 220 + 60 / 220 - dij) * nij
             fij_i += fij
             #print("fijの", i, "番目は", fij_i)
-
         fij[i, :] += fij_i
     return fij
 
@@ -143,10 +239,8 @@ def cal_fiw(n, syudan):
 
         if diw[i] <= 60 / 220 and diw[i] > 0:
             niw = soutai / diw
-            fiw = 5000 * 9.8 * (60 / 220 + 60 / 220 - diw) * niw
+            fiw = 5000 * 9.8 * ( 60 / 220 - diw) * niw
             fiw_i += fiw
-            #print("fiwの", i, "番目は", fiw_i)
-
         fiw[i, :] += fiw_i
     return fiw
 

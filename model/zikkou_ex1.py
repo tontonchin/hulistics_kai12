@@ -3,14 +3,16 @@
 import numpy as np
 import random
 import math
-from moussaif import fa_dasukai, hulistics_1, cal_fij, cal_fiw , dasu_v_1d, dvdt
+from moussaif import fa_dasukai, hulistics_1, cal_fij, cal_fiw , dasu_v_1d, fa_car , fa_kekka
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import datetime
 
 
 #関数部の関数を全ぶmoussaif.pyからインポートしてから実行する
 
 n = 4
+n_cars = 1
 pi = math.pi
 
 fa = np.zeros(n)
@@ -20,6 +22,23 @@ dvdt = np.zeros([n,2])
 alpha = np.zeros(n)
 time = 10
 syudan = np.zeros([n,2])
+
+cars = np.array([[[5,8],
+                  [5,5],
+                  [0,5],
+                  [0,8]]])
+"""
+cars_v = np.array([[[1,0],
+                  [1,0],
+                  [1,0],
+                  [1,0]]])
+"""
+cars_v = np.array([[[0,0],
+                    [0,0],
+                    [0,0],
+                    [0,0]]])
+
+
 
 #print(v_2d)
 #print(v_2d[3,1])
@@ -32,12 +51,12 @@ for i in range(n):
     #v_itizi = v_2d[i,:]
     if kakuritu >= 0.5:
         alpha[i] = pi/2
-        syudan[i,0] = round(random.randrange(2, 8)+random.random(),2)
-        syudan[i,1] = round(random.randrange(0, 1)+random.random(),2)
+        syudan[i,0] = round(random.randrange(2, 8)+random.random(),1)
+        syudan[i,1] = round(random.randrange(0, 1)+random.random(),1)
     else :
         alpha[i] = 3*pi/2
-        syudan[i, 0] = round(random.randrange(2, 8) + random.random(), 2)
-        syudan[i, 1] = round(random.randrange(8, 10) + random.random(), 2)
+        syudan[i, 0] = round(random.randrange(2, 8) + random.random(), 1)
+        syudan[i, 1] = round(random.randrange(8, 10) + random.random(), 1)
     #print("v_2d", v_2d[i, 0])
     #print("alpha", alpha[i])
     #print("arekore", v_1d[i] * np.cos(alpha[i]))
@@ -45,6 +64,26 @@ for i in range(n):
     v_2d[i, 1] = v_1d[i] * np.sin(alpha[i])
 
 #print("初めのalpha", alpha)
+
+alpha[0] = pi/2
+syudan[0,0]  = 2
+syudan[0,1]  = 0
+
+alpha[1] = pi/2
+syudan[1,0]  = 5
+syudan[1,1]  = 0
+
+alpha[2] = 3*pi/2
+syudan[2,0]  = 4
+syudan[2,1]  = 10
+
+alpha[3] = 3*pi/2
+syudan[2,0]  = 8
+syudan[2,1]  = 10
+
+
+
+
 
 
 #print(v_1d, v_2d )
@@ -99,7 +138,12 @@ for j in range(time):
     iti_y = []
 
     #周囲のエージェントを認識
+
+    fa_syucar = fa_car(alpha, syudan , n, cars, n_cars)
+    print("fa_syucar",fa_syucar)
     fa = fa_dasukai(v_2d, syudan, n)
+    #fa = fa_dasukai(v_2d, syudan, n)
+    fa = fa_kekka(n, fa, fa_syucar)
 
     #alphaを更新しようか迷う
 
@@ -121,28 +165,19 @@ for j in range(time):
     for i in range(n):
         #dvdt[i, 0] = (v_2d[i, 0] - 1.7 * math.cos(alpha[i])) / 0.5 + sum_fij[i, 0]
         dvdt[i, 0] = (v_1d[i] * math.cos(alpha[i]) - v_2d[i, 0] ) / 0.5 + sum_fij[i, 0]
-        dvdt[i, 0] = round(dvdt[i,0], 2)
+        dvdt[i, 0] = round(dvdt[i,0], 1)
         #dvdt[i, 0] = round(dvdt[i, 0], 1)
         #print("dvdt[i, 0]",i,dvdt[i, 0])
 
         # dvdt[i, 0] = (v_2d[i, 0] - 1.7 * np.cos(alpha(i))) / 0.5 + fij(i, 0) + fiw(i, 0)
         #dvdt[i, 1] = (v_2d[i, 1] - 1.7 * math.sin(alpha[i])) / 0.5 + sum_fij[i, 1]
         dvdt[i, 1] = (v_1d[i] * math.sin(alpha[i]) - v_2d[i, 1] ) / 0.5 + sum_fij[i, 1]
-        dvdt[i, 1] = round(dvdt[i, 1], 2)
-        #dvdt[i, 1] = round(dvdt[i, 1], 1)
-        #print("dvdt[i, 1]",i,dvdt[i, 1])
-        #print("dvdt[i]", i, dvdt[i])
-    #v_2d += dvdt
+        dvdt[i, 1] = round(dvdt[i, 1], 1)
 
-    #print(j, "step", "v_2d", v_2d)
-
-    #syudan = syudan + dvdt
-
-    #print("syudan", syudan)
-
-    #print("現在の位置は", syudan)
     v_2d += dvdt
     syudan = syudan + v_2d
+    print("syudan", syudan)
+    cars = cars + cars_v
     v_1d = dasu_v_1d(v_2d, v_1d, n)
     #print("v_1d", v_1d)
 
@@ -154,6 +189,6 @@ for j in range(time):
 #for i in range(time):
 
 anim = animation.ArtistAnimation(fig, iti)
-anim.save('ex1_1.gif', writer='writer', fps=4)
+anim.save('ex1_8.gif', writer='writer', fps=4)
 
 plt.show()

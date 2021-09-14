@@ -21,6 +21,9 @@ alpha = np.zeros(n)
 time = 10
 syudan = np.zeros([n,2])
 
+
+
+
 #print(v_2d)
 #print(v_2d[3,1])
 
