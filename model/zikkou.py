@@ -10,7 +10,7 @@ import matplotlib.animation as animation
 
 #関数部の関数を全ぶmoussaif.pyからインポートしてから実行する
 
-n = 40
+n = 50
 pi = math.pi
 
 fa = np.zeros(n)
@@ -121,6 +121,6 @@ for j in range(time):
 #for i in range(time):
 
 anim = animation.ArtistAnimation(fig, iti)
-anim.save('kotu_1228_anim.gif', writer='writer', fps=4)
+anim.save('ooninnzuu.gif', writer='writer', fps=4)
 
 plt.show()

@@ -23,10 +23,10 @@ alpha = np.zeros(n)
 time = 10
 syudan = np.zeros([n,2])
 
-cars = np.array([[[5,8],
+cars = np.array([[[5,6],
                   [5,5],
                   [0,5],
-                  [0,8]]])
+                  [0,6]]])
 """
 cars_v = np.array([[[1,0],
                   [1,0],

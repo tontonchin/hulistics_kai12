@@ -34,7 +34,7 @@ def fa_car(alpha0, syudan, n , cars, n_cars):
      # cars は一つの始点(xcar, ycar)をもとにした三次元配列
      #ところどころで参照する配列の位置が間違えている
     pi = math.pi
-    fa_syucar = np.full(n,10,dtype=float)
+    fa_syucar = np.full(n,10.00)
     l_abc = np.zeros((n, 4, 3))
     fa_abc = np.zeros((n, 3))
     for j in range(n_cars):
@@ -128,7 +128,7 @@ def fa_car(alpha0, syudan, n , cars, n_cars):
 def fa_dasukai(v_2d, syudan, n):
     # 第一のヒューリスティックに関する計算
     # 周囲のエージェントの存在を認知する
-    fa_syudan = np.full(n, 10, dtype=float)
+    fa_syudan = np.full(n, 10.00)
     syudan_ato = syudan + v_2d
     for i in range(n):
         #print("i", fa_syudan[i])
@@ -147,7 +147,7 @@ def fa_dasukai(v_2d, syudan, n):
 
 def fa_kekka( n,fa_syudan,fa_syucar):
     # fa_syudan, fa_carの代償比較
-    fa_hontou = np.full(n,10)
+    fa_hontou = np.full(n,10.00)
     for i in range(n):
         if fa_syudan[i] <= fa_syucar[i]:
             fa_hontou[i] = fa_syudan[i]
