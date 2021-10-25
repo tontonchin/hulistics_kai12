@@ -6,96 +6,57 @@ import math
 from moussaif import fa_dasukai, hulistics_1, cal_fij, cal_fiw , dasu_v_1d, dvdt
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-
+from PIL import Image
+import pandas as pd
+import openpyxl
+import xlrd
 
 #関数部の関数を全ぶmoussaif.pyからインポートしてから実行する
 
-n = 14
+df = pd.read_excel("kokai.xlsx", sheet_name='Sheet1')
+
+n = 12
 pi = math.pi
+time = 17
 
-fa = np.zeros(n)
-v_1d = np.full(n, 1.7)
-v_2d = np.zeros([n,2])
-dvdt = np.zeros([n,2])
-alpha = np.zeros(n)
-time = 10
-syudan = np.zeros([n,2])
+nmp=df.to_numpy()
+syudan = nmp[:,:2]
 
+v_1d = nmp[:,2]
+alpha = nmp[:, 3]
+for i in range(12):
+    alpha[i] = math.radians(alpha[i])
+    alpha[i] = round(alpha[i], 2)
 
-mokuteki = np.zeros(n)
-
-#print(v_2d)
-#print(v_2d[3,1])
-
-
-
-for i in range(n):
-    kakuritu = random.random()
-    v_1d[i] = 1.7
-    #v_itizi = v_2d[i,:]
-    if kakuritu >= 0.5:
-        alpha[i] = pi/2
-        syudan[i,0] = round(random.randrange(2, 8)+random.random(),2)
-        syudan[i,1] = round(random.randrange(0, 2)+random.random(),2)
-        mokuteki[i] = alpha[i]
-    else :
-        alpha[i] = 3*pi/2
-        syudan[i, 0] = round(random.randrange(2, 8) + random.random(), 2)
-        syudan[i, 1] = round(random.randrange(9, 10) + random.random(), 2)
-        mokuteki[i] = alpha[i]
-    #print("v_2d", v_2d[i, 0])
-    #print("alpha", alpha[i])
-    #print("arekore", v_1d[i] * np.cos(alpha[i]))
-    v_2d[i, 0] = v_1d[i] * np.cos(alpha[i])
-    v_2d[i, 1] = v_1d[i] * np.sin(alpha[i])
-
-#print("初めのalpha", alpha)
+v_2d = np.zeros([12,2])
+for i in range(12):
+    v_2d[i,0] = v_1d[i] * math.cos(alpha[i])
+    v_2d[i,1] = v_1d[i] * math.sin(alpha[i])
 
 
-#print(v_1d, v_2d )
+alpha = nmp[:, 3]
+
+
+mokuteki = alpha
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.grid()
-ax.set_xlim([0, 10])
-ax.set_ylim([0, 9.5])
+ax.set_xlim([-2, 35])
+ax.set_ylim([-2, 24])
 ax.set_xlabel("x", fontsize = 14)
 ax.set_ylabel("y", fontsize = 14)
 
-
-# y=5に水平線を引く
-#横断歩道自体はあらかじめ決まった値であるが、それはexcelで参照するような形にした方が書かくちょうせいがたかい
-"""実際ではforで変数を固定し、それぞれ回す"""
-ax.axhline(0.5,xmin=0.2, xmax=0.8, color = "black")
-ax.axhline(1,xmin=0.2, xmax=0.8,color = "black")
-
-ax.axhline(2,xmin=0.2, xmax=0.8, color = "black")
-ax.axhline(2.5,xmin=0.2, xmax=0.8,color = "black")
-
-ax.axhline(3.5,xmin=0.2, xmax=0.8, color = "black")
-ax.axhline(4,xmin=0.2, xmax=0.8,color = "black")
-
-ax.axhline(5,xmin=0.2, xmax=0.8, color = "black")
-ax.axhline(5.5,xmin=0.2, xmax=0.8,color = "black")
-
-ax.axhline(6.5,xmin=0.2, xmax=0.8, color = "black")
-ax.axhline(7,xmin=0.2, xmax=0.8,color = "black")
-
-ax.axhline(8,xmin=0.2, xmax=0.8, color = "black")
-ax.axhline(8.5,xmin=0.2, xmax=0.8,color = "black")
-
-
-
-# x=3に垂直線を引く
-ax.axvline(2, color = "navy")
-ax.axvline(8, color = "navy")
+im = Image.open("kokai.png")
+im_resize = im.resize(size=(66,60))
+ax.imshow(im, extent=[-2, 35, -2, 24], aspect='auto', alpha=0.6)
 
 iti = []
 
 iti_x = []
 iti_y = []
 
-
+print("###alpha", alpha)
 for j in range(time):
 
     print("####",j,"step目######")
@@ -113,7 +74,6 @@ for j in range(time):
 
     alpha = mokuteki
 
-
     alpha = hulistics_1(fa, alpha, n)
     print(alpha,"alpha")
     sum_fij = cal_fij(n, syudan)
@@ -128,7 +88,11 @@ for j in range(time):
     for i in range(n):
         #dvdt[i, 0] = (v_2d[i, 0] - 1.7 * math.cos(alpha[i])) / 0.5 + sum_fij[i, 0]
         #vdes と d / tの関係を記述しきれてないのではないか
-        dvdt[i, 0] = (v_1d[i] * math.cos(alpha[i]) - v_2d[i, 0] ) / 0.5 + sum_fij[i, 0]
+        vdes_1 = 1.75
+        vdes = fa[i]/0.5
+        if vdes >= vdes_1:
+            vdes = vdes_1
+        dvdt[i, 0] = (vdes * math.cos(alpha[i]) - v_2d[i, 0] ) / 0.5 + sum_fij[i, 0]
         dvdt[i, 0] = round(dvdt[i,0], 2)
         #dvdt[i, 0] = round(dvdt[i, 0], 1)
         #print("dvdt[i, 0]",i,dvdt[i, 0])
@@ -162,6 +126,6 @@ for j in range(time):
 #for i in range(time):
 
 anim = animation.ArtistAnimation(fig, iti)
-anim.save('ooninnzuu.gif', writer='writer', fps=4)
+anim.save('kokai.gif', writer='writer', fps=4)
 
 plt.show()

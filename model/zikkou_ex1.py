@@ -20,13 +20,15 @@ v_1d = np.full(n, 1.7)
 v_2d = np.zeros([n,2])
 dvdt = np.zeros([n,2])
 alpha = np.zeros(n)
-time = 10
+time = 50
 syudan = np.zeros([n,2])
+
+mokuteki = np.zeros(n)
 
 cars = np.array([[[5,6],
                   [5,5],
-                  [0,5],
-                  [0,6]]])
+                  [1,5],
+                  [1,6]]])
 """
 cars_v = np.array([[[1,0],
                   [1,0],
@@ -40,48 +42,31 @@ cars_v = np.array([[[0,0],
 
 
 
-#print(v_2d)
-#print(v_2d[3,1])
-
-
-
-for i in range(n):
-    kakuritu = random.random()
-    v_1d[i] = 1.7
-    #v_itizi = v_2d[i,:]
-    if kakuritu >= 0.5:
-        alpha[i] = pi/2
-        syudan[i,0] = round(random.randrange(2, 8)+random.random(),1)
-        syudan[i,1] = round(random.randrange(0, 1)+random.random(),1)
-    else :
-        alpha[i] = 3*pi/2
-        syudan[i, 0] = round(random.randrange(2, 8) + random.random(), 1)
-        syudan[i, 1] = round(random.randrange(8, 10) + random.random(), 1)
-    #print("v_2d", v_2d[i, 0])
-    #print("alpha", alpha[i])
-    #print("arekore", v_1d[i] * np.cos(alpha[i]))
-    v_2d[i, 0] = v_1d[i] * np.cos(alpha[i])
-    v_2d[i, 1] = v_1d[i] * np.sin(alpha[i])
-
-#print("初めのalpha", alpha)
 
 alpha[0] = pi/2
+mokuteki[0] = pi/2
 syudan[0,0]  = 2
-syudan[0,1]  = 0
+syudan[0,1]  = 0.5
 
 alpha[1] = pi/2
+mokuteki[1] = pi/2
 syudan[1,0]  = 5
-syudan[1,1]  = 0
+syudan[1,1]  = 0.5
 
 alpha[2] = 3*pi/2
+mokuteki[2] = 3*pi/2
 syudan[2,0]  = 4
 syudan[2,1]  = 10
 
 alpha[3] = 3*pi/2
+mokuteki[3] = 3*pi/2
 syudan[2,0]  = 8
 syudan[2,1]  = 10
 
+for i in range(4):
 
+    v_2d[i, 0] = v_1d[i] * np.cos(alpha[i])
+    v_2d[i, 1] = v_1d[i] * np.sin(alpha[i])
 
 
 
@@ -150,7 +135,7 @@ for j in range(time):
     #print(fa, type(fa))
     print("fa", fa)
 
-
+    alpha = mokuteki
     alpha = hulistics_1(fa, alpha, n)
     print(alpha,"alpha")
     sum_fij = cal_fij(n, syudan)
@@ -175,7 +160,7 @@ for j in range(time):
         dvdt[i, 1] = round(dvdt[i, 1], 1)
 
     v_2d += dvdt
-    syudan = syudan + v_2d
+    syudan = syudan + (v_2d/10)
     print("syudan", syudan)
     cars = cars + cars_v
     v_1d = dasu_v_1d(v_2d, v_1d, n)
@@ -189,6 +174,6 @@ for j in range(time):
 #for i in range(time):
 
 anim = animation.ArtistAnimation(fig, iti)
-anim.save('ex1_8.gif', writer='writer', fps=4)
+anim.save('ex1_10.gif', writer='writer', fps=4)
 
 plt.show()

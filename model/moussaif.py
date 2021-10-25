@@ -16,6 +16,7 @@ def fa_dasu(v_2d, syudan, n):
     for i in range(n):
         #print("i", fa_syudan[i])
         soutai = syudan_ato - syudan_ato[i]
+        print("soutai",soutai)
         #soutaiはsyudanから自分の位置を引いたも　and
         #print("soutai", soutai)
         for j in range(n):
@@ -34,6 +35,7 @@ def fa_car(alpha0, syudan, n , cars, n_cars):
      # cars は一つの始点(xcar, ycar)をもとにした三次元配列
      #ところどころで参照する配列の位置が間違えている
     pi = math.pi
+    print("fa_carのためのalpha0",alpha0)
     fa_syucar = np.full(n,10.00)
     l_abc = np.zeros((n, 4, 3))
     fa_abc = np.zeros((n, 3))
@@ -95,6 +97,7 @@ def fa_car(alpha0, syudan, n , cars, n_cars):
                 if syudan[i, 1] >= cars[k, 0, 1] and syudan[i, 0] <= cars[k, 1, 1]:
                     fa_car_kouho = abs(syudan[i,0] - cars[k,2,0])
             elif alpha0[i] == 3*(pi/2) :
+                print("syudan[i,1]",syudan[i,1])
                 fa_abc[i, 1] = 1/syudan[i,1]
                 fa_abc[i, 2] = -1
                 print("要チェック",cars[k,3,0])
@@ -107,6 +110,7 @@ def fa_car(alpha0, syudan, n , cars, n_cars):
                     fa_abc[i,1] = -1
                     fa_abc[i,2] = -math.tan(alpha0[i])*syudan[i,0] + syudan[i,1]
                     kouten_sita = (l_abc[i,k,0] * fa_abc[i,1]) - (fa_abc[i,0] * l_abc[i,k,1])
+                    print("kouten_sita",kouten_sita, print(alpha0))
                     kouten_x = ((l_abc[i,k,1] * fa_abc[i,2]) - (fa_abc[i,1] - l_abc[i,k,2] ) )/ kouten_sita
                     kouten_y = ((fa_abc[i, 0] * l_abc[i,k,2]) - (l_abc[i,k,0] *fa_abc[i,2] ) )/ kouten_sita
                     if cars[0,1,0] >= kouten_x and cars[0,2,0] <= kouten_x:
@@ -132,7 +136,9 @@ def fa_dasukai(v_2d, syudan, n):
     syudan_ato = syudan + v_2d
     for i in range(n):
         #print("i", fa_syudan[i])
-        soutai = syudan_ato - syudan_ato[i]
+        #soutai = syudan_ato - syudan_ato[i]
+        soutai = syudan - syudan[i]
+        #print("soutai", soutai)
         for j in range(n):
             if soutai[j, 0] == 0 and soutai[j, 1] == 0:
                 continue
@@ -151,11 +157,14 @@ def fa_kekka( n,fa_syudan,fa_syucar):
     for i in range(n):
         if fa_syudan[i] <= fa_syucar[i]:
             fa_hontou[i] = fa_syudan[i]
+            fa_hontou[i] = round(fa_hontou[i], 2)
         else:
             fa_hontou[i] = fa_syucar[i]
+            fa_hontou[i] = round(fa_hontou[i], 2)
 
         if fa_hontou[i] == 0:
             fa_hontou[i] = 0.5
+            fa_hontou[i] = round(fa_hontou[i], 2)
 
     return fa_hontou
 
@@ -265,4 +274,19 @@ def dasu_v_1d(v_2d,v_1d,n):
         v_1d[i] = np.linalg.norm(v_2d[i])
     return v_1d
 
+def alpha_dasu(vx, vy):
+    if vx ==0 :
+        if vy >= 0:
+            alpha = (math.pi)/2
+        else:
+            alpha = 3*(math.pi)/2
+    elif vy ==0:
+        if vx >= 0:
+            alpha = 0
+        else:
+            alpha = math.pi
+    else :
+        alpha = math.atan(vy/vx)
+    alpha = round(alpha, 2)
+    return alpha
 
