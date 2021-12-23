@@ -6,6 +6,7 @@ import math
 from moussaif import fa_dasukai, hulistics_1, cal_fij, cal_fiw , dasu_v_1d, fa_car , fa_kekka
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from pathlib import Path
 import datetime
 
 
@@ -174,6 +175,8 @@ for j in range(time):
 #for i in range(time):
 
 anim = animation.ArtistAnimation(fig, iti)
-anim.save('ex1_10.gif', writer='writer', fps=4)
+
+aaa = Path("hozon")
+anim.save(aaa/'ex1_10_1207.gif', writer='writer', fps=4)
 
 plt.show()

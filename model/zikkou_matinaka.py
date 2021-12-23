@@ -3,11 +3,12 @@
 import numpy as np
 import random
 import math
-from moussaif import fa_dasukai, hulistics_1, cal_fij, cal_fiw , dasu_v_1d, dvdt , alpha_dasu
+from moussaif import fa_dasukai,fa_dasukai2, hulistics_1, cal_fij, cal_fiw , dasu_v_1d, dvdt , alpha_dasu
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from PIL import Image
 import pandas as pd
+from pathlib import Path
 import openpyxl
 import xlrd
 
@@ -15,7 +16,8 @@ pi = math.pi
 #関数部の関数を全ぶmoussaif.pyからインポートしてから実行する
 zikan = np.arange(100)/2
 
-df = pd.read_excel("MAH00556-01_nantoka.xlsx", sheet_name='Sheet1')
+
+df = pd.read_excel("iiyatu_test12.xlsx", sheet_name='Sheet3')
 nmp=df.to_numpy()
 syudan = nmp
 
@@ -29,6 +31,7 @@ print("syudan.shape",syudan.shape)
 n_kei = syudan.shape[0]
 
 syudan_gen = np.empty((0,8),int)
+
 print("syudan_gen", syudan_gen)
 for i in range(n_kei):
     print("syudan[i,0", syudan[i,0])
@@ -47,13 +50,13 @@ xy_iti = syudan_gen[:,2:4]
 
 v_1d = syudan_gen[:,6]
 v_2d = syudan_gen[:, 4:6]
-alpha = syudan_gen[:, 7]
-mokuteki = alpha
+alpha_ini = syudan_gen[:, 7]
+mokuteki = alpha_ini
 
 print("xy_iti", xy_iti)
 print("v_1d", v_1d)
 print("v_2d", v_2d)
-print("alpha", alpha)
+print("alpha", alpha_ini)
 
 
 #fig = plt.figure(figsize=(8, 6))
@@ -76,10 +79,7 @@ ax.imshow(im, extent=[0, 30, 0, 40], aspect='auto', alpha=0.6)
 
 iti = []
 
-iti_x = []
-iti_y = []
 
-print("###alpha", alpha)
 for j in zikan:
     print("####",j,"s秒目######")
     if not j == 0:
@@ -91,20 +91,25 @@ for j in zikan:
                 v_1d = np.append(v_1d, syudan[t, 6])
                 v2d = np.array([syudan[t, 4:6]])
                 v_2d = np.append(v_2d, v2d, axis=0)
-                alpha = np.append(alpha, syudan[t,7])
+                alpha_ini = np.append(alpha_ini, syudan[t,7])
                 mokuteki = np.append(mokuteki, syudan[t,7])
     print(j,"秒目のn_gen",n_gen)
     print(j,"秒目のxy_iti",xy_iti)
 
 
+    for m in range(n_gen):
+        alpha_ini[m] = syudan[m,7]
+
+
     iti_x = []
     iti_y = []
     #周囲のエージェントを認識
-    fa = fa_dasukai(v_2d, xy_iti, n_gen)
+    fa = fa_dasukai2(v_2d, xy_iti, n_gen)
     #print(fa, type(fa))
     print("fa", fa)
-    alpha = mokuteki
-    alpha = hulistics_1(fa, alpha, n_gen)
+    #alpha = alpha_ini
+    print("変化前のalpha",alpha_ini)
+    alpha = hulistics_1(fa, alpha_ini, n_gen)
     print(alpha,"alpha")
     sum_fij = cal_fij(n_gen, xy_iti)
     #sum_fij = np.zeros(n_gen)
@@ -130,6 +135,7 @@ for j in zikan:
     xy_iti = xy_iti + v_2d
     v_1d = dasu_v_1d(v_2d, v_1d, n_gen)
     print("v_1d", v_1d)
+    print("v_2d", v_2d)
     #print("v_1d", v_1d)
 
     #plt.xlim(0, 10)
@@ -140,6 +146,8 @@ for j in zikan:
 #for i in range(time):
 
 anim = animation.ArtistAnimation(fig, iti)
-anim.save('matinakazikkou.gif', writer='writer', fps=4)
+
+aaa = Path("hozon")
+anim.save(aaa/'teatsampke1204.gif', writer='writer', fps=2)
 
 plt.show()
